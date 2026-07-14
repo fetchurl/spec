@@ -21,6 +21,10 @@
 - Only public data (no auth)
 - Focus in caching package manager dependencies (ex: npm packages)
 
+# Requirements language
+
+The key words **MUST**, **MUST NOT**, **SHOULD**, **SHOULD NOT**, and **MAY** in this document are to be interpreted as described in [BCP 14](https://www.rfc-editor.org/info/bcp14) ([RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html), [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174.html)) when, and only when, they appear in all capitals, as shown here.
+
 # Design
 
 ```
@@ -30,28 +34,28 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 - This design doesn't cover how a client may get the source URLs and hashes of the content
 - The server MUST only work with public, or well hidden, data
 - `X-Source-Urls` MUST define as a list of source URLs following [RFC 8941](https://www.rfc-editor.org/rfc/rfc8941.html#name-lists)
-- `X-Source-Urls` SHOULD be no longer than 8192 characters. The server CAN truncate it and load all URLs but the last that is truncated.
+- `X-Source-Urls` SHOULD be no longer than 8192 characters. The server MAY truncate it and load all URLs but the last that is truncated.
 - A source URL SHOULD be chosen randomly at fetch time, like a mirror list
-- The server MUST NOT retry or fallback to alternative sources once response streaming has begun. Before streaming begins sending data to the client the server may try alternative sources if the initial source fails.
+- The server MUST NOT retry or fallback to alternative sources once response streaming has begun. Before streaming begins sending data to the client the server MAY try alternative sources if the initial source fails.
 - The `FETCHURL_SERVER` MUST define a list of servers following [RFC 8941](https://www.rfc-editor.org/rfc/rfc8941.html#name-lists) if the first character is a ", otherwise the whole variable is interpreted as one single value
   - Example: `FETCHURL_SERVER="http://cache.local:8080/api/fetchurl"`
     - The client appends `/:algo/:hash` to produce `http://cache.local:8080/api/fetchurl/sha256/e3b0...`.
 - The `FETCHURL_SERVER` environment variable MUST have the full URLs ready to append `/:algo/:hash`
-- The `FETCHURL_SERVER` environment variable CAN be absent or empty, which MUST disable server support
+- The `FETCHURL_SERVER` environment variable MAY be absent or empty, which MUST disable server support
 - Clients are instructed by environment to use servers by using the `FETCHURL_SERVER` environment variable
 - Clients MUST check for `FETCHURL_SERVER`
-- Clients CAN fall back to direct download if something goes wrong
+- Clients MAY fall back to direct download if something goes wrong
 - Clients MUST know the hash and source URLs before connecting to a server
 - Clients MUST check the hash of the files being downloaded on the server and assume that the Server is untrusted, no matter the provider or if it uses TLS
 - Hashes MUST be represented as lowercase hexadecimal
-- The server CAN delete any item at any moment for any reason
+- The server MAY delete any item at any moment for any reason
 - The process of deletion and addition of a cache item MUST be atomic
 - The source MUST provide content size. If not provided, the server MUST reject the request
-- The server CAN start serving the data while it's checking for the hash to optimize time to first byte
+- The server MAY start serving the data while it's checking for the hash to optimize time to first byte
 - If the hash doesn't match at the end of the stream the server MUST abruptly close the connection
 - The client MUST only accept the file if the connection ended gracefully, anything that resembles a failure MUST be considered as a rejection
 - Daisy chained servers SHOULD send the list of URLs via `X-Source-Urls` to their upstreams. It's just a matter to allow the upstream to fallback on source download.
-- Servers CAN evict any data at any time and have their own independent eviction policies to have the best cache hit vs resource usage tradeoff
+- Servers MAY evict any data at any time and have their own independent eviction policies to have the best cache hit vs resource usage tradeoff
 - When saving data on disk, the data directory SHOULD follow `/:algo/:shard/:hash` where shard is the first n letters of the hash where n by default is 2.
 - Hashing algorithms MUST be defined as their names in lowercase discarding letters which don't match with `[a-z0-9]`. Examples: md5, sha1, sha256, sha512
 - Clients SHOULD prefer the sha256 algorithm if available

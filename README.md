@@ -13,6 +13,7 @@ See [SPEC.md](./SPEC.md). Tagged releases (e.g. `v0.1.0`) mark immutable protoco
 | Component | Repository |
 |-----------|------------|
 | Reference server (Go) | [fetchurl/fetchurl](https://github.com/fetchurl/fetchurl) |
+| Java SDK | [fetchurl/sdk-java](https://github.com/fetchurl/sdk-java) |
 | JavaScript SDK | [fetchurl/sdk-js](https://github.com/fetchurl/sdk-js) |
 | Python SDK | [fetchurl/sdk-python](https://github.com/fetchurl/sdk-python) |
 | Rust SDK | [fetchurl/sdk-rust](https://github.com/fetchurl/sdk-rust) |

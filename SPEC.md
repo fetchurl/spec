@@ -47,7 +47,9 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 - Clients MAY fall back to direct download if something goes wrong
 - Clients MUST know the hash and source URLs before connecting to a server
 - Clients MUST check the hash of the files being downloaded on the server and assume that the Server is untrusted, no matter the provider or if it uses TLS
-- Hashes MUST be represented as lowercase hexadecimal
+- Hashes MUST be represented as lowercase hexadecimal of the full digest for the algorithm. Expected path-segment lengths for algorithms in scope: `sha1` = 40, `sha256` = 64, `sha512` = 128 characters.
+- Servers SHOULD reject a request with **400** when the hash path segment is not hexadecimal or is not the expected length for the (normalized) algorithm. Servers MAY accept uppercase hex digits by normalizing them to lowercase before lookup, storage, and comparison.
+- Servers SHOULD reject hashes longer than 255 ASCII characters (also **400**).
 - The server MAY delete any item at any moment for any reason
 - The process of deletion and addition of a cache item MUST be atomic
 - The source HTTP response MUST include a `Content-Length` header giving the content size. If it is absent (for example chunked encoding without a known length), the server MUST reject the request
@@ -63,9 +65,8 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 - Servers SHOULD treat the empty-file hash as a cache hit without downloading anything
 - Servers SHOULD set the header `Cache-Control: public, max-age=31536000, immutable` on a real cache hit, where the server has proven that it has the valid file in its store.
 - Servers MUST set the header `Content-Type: application/octet-stream` regardless of the upstream MIME type
-- Servers SHOULD reject hashes longer than 255 ASCII characters. No one needs more than that.
 - Servers MUST implement a health route at `/health` under the router referenced by `FETCHURL_SERVER`. Example: `/api/fetchurl/health`.
-- Downstream servers MUST decide whether the server is healthy by checking the status code of the health route. 200 = OK. Anything else = not OK.
+- Downstream servers (a fetchurl server calling another fetchurl server as upstream) MUST decide whether that upstream is healthy by checking the status code of the health route. 200 = OK. Anything else = not OK.
 
 # Challenges
 - Implementation: this repository holds only the protocol; specialized implementations can run on Cloudflare Workers or be written in Rust or Elixir for scalability and performance
@@ -76,6 +77,7 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 # Error conditions
 - 400 - Bad request
   - Unsupported hash algorithm
+  - Invalid hash path segment (not hex, wrong length for the algorithm, or longer than 255 characters)
 - 404 - Not found
   - Cache miss, no sources
 - 502 - Bad gateway

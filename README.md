@@ -4,9 +4,11 @@ Normative specification for **fetchurl**: a simple content-addressable URL cache
 
 This repository holds **only** the protocol. Implementations live elsewhere.
 
+Project site and guides: [fetchurl.github.io](https://fetchurl.github.io) (normative text stays in this repo).
+
 ## Specification
 
-See [SPEC.md](./SPEC.md). Tagged releases (e.g. `v0.1.0`) mark immutable protocol versions.
+See [SPEC.md](./SPEC.md). Tagged releases (e.g. `v0.1.0`) mark immutable protocol versions. Normative text changes are recorded in [CHANGELOG.md](./CHANGELOG.md).
 
 ## Implementations
 
@@ -22,7 +24,7 @@ See [SPEC.md](./SPEC.md). Tagged releases (e.g. `v0.1.0`) mark immutable protoco
 
 - Protocol changes happen in this repo and are tagged (`v0.1.0`, `v0.2.0`, …).
 - Servers and SDKs declare which protocol version(s) they implement; their semver is independent of protocol tags.
-- Breaking wire/header/environment semantics require a new protocol minor or major; document the delta in `CHANGELOG.md`.
+- Breaking wire/header/environment semantics require a new protocol minor or major; document the delta in [CHANGELOG.md](./CHANGELOG.md).
 
 ## Contributing
 

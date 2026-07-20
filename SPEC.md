@@ -62,7 +62,11 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 - Hashing algorithm names MUST be normalized by converting to lowercase and discarding every character that does not match `[a-z0-9]`. Examples: `SHA-256` → `sha256`, `sha1`, `sha512`
 - Clients SHOULD prefer the sha256 algorithm if available
 - Servers SHOULD deduplicate concurrent requests for the same `algo:hash` pair to avoid redundant upstream fetches
-- Servers SHOULD treat the empty-file hash as a cache hit without downloading anything
+- Servers SHOULD treat a request for the empty-file (zero-length) digest as a cache hit without contacting any source or upstream. For algorithms in scope, those digests are:
+  - `sha1`: `da39a3ee5e6b4b0d3255bfef95601890afd80709`
+  - `sha256`: `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+  - `sha512`: `cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e`
+  The response body MUST be zero bytes. This path counts as a real cache hit for response headers (including the `Cache-Control` rule below).
 - Servers SHOULD set the header `Cache-Control: public, max-age=31536000, immutable` on a real cache hit, where the server has proven that it has the valid file in its store.
 - Servers MUST set the header `Content-Type: application/octet-stream` regardless of the upstream MIME type
 - Servers MUST implement a health route at `/health` under the router referenced by `FETCHURL_SERVER`. Example: `/api/fetchurl/health`.

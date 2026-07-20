@@ -52,7 +52,7 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 - Servers SHOULD reject hashes longer than 255 ASCII characters (also **400**).
 - The server MAY delete any item at any moment for any reason
 - The process of deletion and addition of a cache item MUST be atomic
-- The source HTTP response MUST include a `Content-Length` header giving the content size. If it is absent (for example chunked encoding without a known length), the server MUST reject the request
+- The source HTTP response MUST include a `Content-Length` header giving the content size. If it is absent (for example chunked encoding without a known length), the server MUST NOT stream that source to the client and MUST treat it as a failed source (the same class as other source failures). Before response streaming has begun, the server MAY try alternative sources. If no source succeeds, the server SHOULD respond with **502**.
 - The server MAY start serving the data while it's checking for the hash to optimize time to first byte
 - If the hash doesn't match at the end of the stream the server MUST abruptly close the connection
 - The client MUST only accept the file if the connection ended gracefully, anything that resembles a failure MUST be considered as a rejection
@@ -85,7 +85,9 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 - 404 - Not found
   - Cache miss, no sources
 - 502 - Bad gateway
-  - Upstream/source failed to respond.
+  - Upstream/source failed to respond
+  - Source responded without a usable `Content-Length` (and no alternative source succeeded)
+  - All candidate sources/upstreams failed before streaming began
 - Unexpected aborts
   - Hash mismatch
   - Source/upstream unexpected abort

@@ -15,6 +15,7 @@ normative text changes that implementers may care about.
 - Hash path segment is the full lowercase hex digest (`sha1` 40 / `sha256` 64 / `sha512` 128); servers SHOULD **400** on non-hex or wrong length (and still SHOULD **400** above 255 chars). Uppercase hex MAY be accepted via lowercase normalization. Error conditions list invalid digests under 400. “Downstream” in the health rule means a server probing an upstream fetchurl server.
 - Empty-file (zero-length) digests for algorithms in scope are named explicitly (`sha1` / `sha256` / `sha512`); servers SHOULD serve them as a cache hit with a zero-byte body without contacting source or upstream.
 - Missing source `Content-Length` is a failed source (not a silent stream): MAY try other sources before streaming; if none succeed, SHOULD **502**. Error conditions list that case under 502.
+- Integrity failures mid-stream: if transferred bytes do not match source `Content-Length`, the server MUST abort the connection like a hash mismatch. Failed hash or size verification MUST NOT complete as a durable cache addition (only verified content is stored). Error conditions list size mismatch under unexpected aborts.
 
 ## [0.1.0] — initial
 

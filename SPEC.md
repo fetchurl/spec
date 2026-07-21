@@ -55,6 +55,8 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 - The source HTTP response MUST include a `Content-Length` header giving the content size. If it is absent (for example chunked encoding without a known length), the server MUST NOT stream that source to the client and MUST treat it as a failed source (the same class as other source failures). Before response streaming has begun, the server MAY try alternative sources. If no source succeeds, the server SHOULD respond with **502**.
 - The server MAY start serving the data while it's checking for the hash to optimize time to first byte
 - If the hash doesn't match at the end of the stream the server MUST abruptly close the connection
+- If the number of bytes transferred from the source does not equal the source response's `Content-Length`, the server MUST abruptly close the connection (same class of failure as a hash mismatch)
+- The server MUST NOT complete addition of a cache item for a fetch that fails hash or size verification. A durable cache entry MUST be fully verified content only; incomplete or failed write state is not a successful addition.
 - The client MUST only accept the file if the connection ended gracefully, anything that resembles a failure MUST be considered as a rejection
 - Daisy-chained servers SHOULD send the list of URLs via `X-Source-Urls` to their upstreams so the upstream can fall back to a source download.
 - Servers MAY evict any data at any time and have their own independent eviction policies to balance cache hit rate against resource usage
@@ -90,4 +92,5 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
   - All candidate sources/upstreams failed before streaming began
 - Unexpected aborts
   - Hash mismatch
+  - Byte count does not match source `Content-Length`
   - Source/upstream unexpected abort

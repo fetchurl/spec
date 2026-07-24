@@ -7,6 +7,7 @@ normative text changes that implementers may care about.
 
 ### Clarifications
 
+- `X-Source-Urls` is required only when a cache fill may be needed: servers MUST NOT require the header for a local cache hit or the empty-file digest short-circuit; on miss with no usable sources/upstreams, SHOULD **404**. Format rule applies when the header is present. Error conditions align with that miss case.
 - Define BCP 14 requirement keywords and use **MAY** for optional behavior (was non-standard **CAN**).
 - Prose clarity in `SPEC.md` (grammar, phrasing, Challenges aligned with protocol-only repo scope). No intentional wire/header/env change.
 - README implementations table includes the Java SDK (`fetchurl/sdk-java`).

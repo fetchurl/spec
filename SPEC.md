@@ -33,7 +33,8 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 ```
 - This design doesn't cover how a client may get the source URLs and hashes of the content
 - The server MUST only work with public, or well hidden, data
-- `X-Source-Urls` MUST be a list of source URLs following [RFC 8941](https://www.rfc-editor.org/rfc/rfc8941.html#name-lists)
+- `X-Source-Urls` MUST be a list of source URLs following [RFC 8941](https://www.rfc-editor.org/rfc/rfc8941.html#name-lists) when the header is present
+- Clients that may need a cache fill MUST send `X-Source-Urls`. Servers MUST NOT require `X-Source-Urls` when serving a local cache hit or when applying the empty-file (zero-length) digest short-circuit. On a cache miss, if the server has no usable source URLs (header absent, empty, or not a usable RFC 8941 list) and no healthy upstream to try, it SHOULD respond with **404**.
 - `X-Source-Urls` SHOULD be no longer than 8192 characters. The server MAY truncate it and load all complete URLs, dropping a trailing truncated fragment.
 - A source URL SHOULD be chosen randomly at fetch time, like a mirror list
 - The server MUST NOT retry or fall back to alternative sources once response streaming has begun. Before the server begins streaming data to the client, it MAY try alternative sources if the initial source fails.
@@ -85,7 +86,7 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
   - Unsupported hash algorithm
   - Invalid hash path segment (not hex, wrong length for the algorithm, or longer than 255 characters)
 - 404 - Not found
-  - Cache miss, no sources
+  - Cache miss with no usable `X-Source-Urls` and no healthy upstream
 - 502 - Bad gateway
   - Upstream/source failed to respond
   - Source responded without a usable `Content-Length` (and no alternative source succeeded)

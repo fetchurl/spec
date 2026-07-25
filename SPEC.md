@@ -74,6 +74,17 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 - Servers MUST implement a health route at `/health` under the router referenced by `FETCHURL_SERVER`. Example: `/api/fetchurl/health`.
 - Downstream servers (a fetchurl server calling another fetchurl server as upstream) MUST decide whether that upstream is healthy by checking the status code of the health route. 200 = OK. Anything else = not OK.
 
+# Security
+
+Outbound fetches used for cache fills — source URLs from `X-Source-Urls` and HTTP requests a server makes to origins on a miss — are attacker-influenced whenever untrusted clients can reach the server. The rules below define the “public data” constraint from Scope and Design for implementers. Client-side hash verification (Design) remains mandatory and is not replaced by these controls.
+
+- Source URLs the server fetches MUST use the `http` or `https` scheme. Servers MUST NOT fetch `file:`, `ftp:`, or other schemes for cache fills.
+- By default, when fetching sources, servers MUST NOT open outbound connections to non-public destinations. Non-public includes at least: loopback, RFC 1918 private and IPv6 unique-local (ULA) ranges, link-local unicast (including cloud instance-metadata addresses such as `169.254.169.254`), unspecified addresses (`0.0.0.0` / `::`), multicast, and RFC 6598 shared address space (`100.64.0.0/10`). Destination checks MUST apply to the resolved IP address(es) used for the connection, not only the hostname string in the URL.
+- If the server follows HTTP redirects when fetching a source, each redirect hop MUST be subject to the same scheme and public-destination rules as the initial request.
+- Servers MAY offer an explicit, off-by-default configuration that allows non-public destinations (for example local integration tests). That mode MUST NOT be the default for production-oriented deployments.
+- Servers SHOULD bound waits for outbound connect, TLS handshake, and response headers so stalled peers fail without hanging indefinitely. Servers MUST NOT rely solely on a single client-wide timeout that covers the entire response body: multi-gigabyte CAS objects on slow links must be allowed to finish while mid-stream hash and `Content-Length` verification still apply (see Design).
+- Configured upstream fetchurl bases used only for daisy-chained CAS requests and their `/health` probes are operator-chosen infrastructure, not client-supplied source URLs. They MAY target non-public addresses when the operator intentionally places caches on a private network. Client-supplied `X-Source-Urls` remain subject to the public-destination and scheme rules above unless the off-by-default non-public mode is enabled.
+
 # Challenges
 - Implementation: this repository holds only the protocol; specialized implementations can run on Cloudflare Workers or be written in Rust or Elixir for scalability and performance
 - Adoption: implement logic on different clients to use a server
@@ -90,6 +101,7 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
   - Upstream/source failed to respond
   - Source responded without a usable `Content-Length` (and no alternative source succeeded)
   - All candidate sources/upstreams failed before streaming began
+  - Every candidate source was rejected under Security (disallowed scheme or non-public destination) and no healthy upstream succeeded
 - Unexpected aborts
   - Hash mismatch
   - Byte count does not match source `Content-Length`

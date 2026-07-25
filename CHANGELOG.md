@@ -16,6 +16,7 @@ normative text changes that implementers may care about.
 - Empty-file (zero-length) digests for algorithms in scope are named explicitly (`sha1` / `sha256` / `sha512`); servers SHOULD serve them as a cache hit with a zero-byte body without contacting source or upstream.
 - Missing source `Content-Length` is a failed source (not a silent stream): MAY try other sources before streaming; if none succeed, SHOULD **502**. Error conditions list that case under 502.
 - Integrity failures mid-stream: if transferred bytes do not match source `Content-Length`, the server MUST abort the connection like a hash mismatch. Failed hash or size verification MUST NOT complete as a durable cache addition (only verified content is stored). Error conditions list size mismatch under unexpected aborts.
+- Security: outbound source fetches MUST use `http`/`https` only; by default MUST NOT connect to non-public destinations (loopback, RFC 1918/ULA, link-local including cloud metadata, unspecified, multicast, RFC 6598 CGNAT), including on redirect hops; resolved IPs MUST be checked. Optional off-by-default non-public mode MAY exist for tests. SHOULD bound connect/TLS/response-header waits; MUST NOT rely only on a full-body client timeout. Operator-configured upstream bases MAY be private; client `X-Source-Urls` follow the public rules unless the non-public mode is on. Error conditions list total Security rejection under 502.
 
 ## [0.1.0] — initial
 

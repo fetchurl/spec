@@ -7,6 +7,7 @@ normative text changes that implementers may care about.
 
 ### Clarifications
 
+- Source cache fills: size and digest apply to the raw identity object bytes. Servers MUST NOT use a transparently decompressed `Content-Encoding` body for those checks; SHOULD request identity encoding (or disable transparent decompression).
 - Define BCP 14 requirement keywords and use **MAY** for optional behavior (was non-standard **CAN**).
 - Prose clarity in `SPEC.md` (grammar, phrasing, Challenges aligned with protocol-only repo scope). No intentional wire/header/env change.
 - README implementations table includes the Java SDK (`fetchurl/sdk-java`).

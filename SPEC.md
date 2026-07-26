@@ -53,9 +53,10 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 - The server MAY delete any item at any moment for any reason
 - The process of deletion and addition of a cache item MUST be atomic
 - A source HTTP response is usable for cache fill only when its final status code is **200** and it includes a `Content-Length` header giving the content size. Servers MUST NOT stream a source response with any other status, or without `Content-Length` (for example chunked encoding without a known length), to the client. The server MUST treat those cases as a failed source (the same class as other source failures). Before response streaming has begun, the server MAY try alternative sources. If no source succeeds, the server SHOULD respond with **502**.
+- Content size and digest checks apply to the **raw** object bytes that form the CAS entry (the identity payload). When fetching a source for cache fill, servers MUST NOT use a body that an HTTP stack has transparently decompressed under `Content-Encoding` (for example automatic gzip decode) as the stream for `Content-Length` or hash verification. Servers SHOULD request identity encoding (for example `Accept-Encoding: identity`) or otherwise disable transparent decompression so `Content-Length` and the digest input match the stored object.
 - On a successful response to the client (local cache hit, empty-file digest short-circuit, or completed cache fill), the server status code MUST be **200**.
-- The server MAY start serving the data while it's checking for the hash to optimize time to first byte
-- If the hash doesn't match at the end of the stream the server MUST abruptly close the connection
+- The server MAY start serving the data while it is checking for the hash to optimize time to first byte
+- If the hash does not match at the end of the stream the server MUST abruptly close the connection
 - If the number of bytes transferred from the source does not equal the source response's `Content-Length`, the server MUST abruptly close the connection (same class of failure as a hash mismatch)
 - The server MUST NOT complete addition of a cache item for a fetch that fails hash or size verification. A durable cache entry MUST be fully verified content only; incomplete or failed write state is not a successful addition.
 - The client MUST only accept the file if the connection ended gracefully, anything that resembles a failure MUST be considered as a rejection

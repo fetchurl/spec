@@ -52,7 +52,8 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 - Servers SHOULD reject hashes longer than 255 ASCII characters (also **400**).
 - The server MAY delete any item at any moment for any reason
 - The process of deletion and addition of a cache item MUST be atomic
-- The source HTTP response MUST include a `Content-Length` header giving the content size. If it is absent (for example chunked encoding without a known length), the server MUST NOT stream that source to the client and MUST treat it as a failed source (the same class as other source failures). Before response streaming has begun, the server MAY try alternative sources. If no source succeeds, the server SHOULD respond with **502**.
+- A source HTTP response is usable for cache fill only when its final status code is **200** and it includes a `Content-Length` header giving the content size. Servers MUST NOT stream a source response with any other status, or without `Content-Length` (for example chunked encoding without a known length), to the client. The server MUST treat those cases as a failed source (the same class as other source failures). Before response streaming has begun, the server MAY try alternative sources. If no source succeeds, the server SHOULD respond with **502**.
+- On a successful response to the client (local cache hit, empty-file digest short-circuit, or completed cache fill), the server status code MUST be **200**.
 - The server MAY start serving the data while it's checking for the hash to optimize time to first byte
 - If the hash doesn't match at the end of the stream the server MUST abruptly close the connection
 - If the number of bytes transferred from the source does not equal the source response's `Content-Length`, the server MUST abruptly close the connection (same class of failure as a hash mismatch)
@@ -99,6 +100,7 @@ Outbound fetches used for cache fills — source URLs from `X-Source-Urls` and H
   - Cache miss, no sources
 - 502 - Bad gateway
   - Upstream/source failed to respond
+  - Source responded with a non-200 final status (and no alternative source succeeded)
   - Source responded without a usable `Content-Length` (and no alternative source succeeded)
   - All candidate sources/upstreams failed before streaming began
   - Every candidate source was rejected under Security (disallowed scheme or non-public destination) and no healthy upstream succeeded

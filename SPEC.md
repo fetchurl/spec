@@ -50,7 +50,7 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 - Hashes MUST be represented as lowercase hexadecimal of the full digest for the algorithm. Expected path-segment lengths for algorithms in scope: `sha1` = 40, `sha256` = 64, `sha512` = 128 characters.
 - Servers SHOULD reject a request with **400** when the hash path segment is not hexadecimal or is not the expected length for the (normalized) algorithm. Servers MAY accept uppercase hex digits by normalizing them to lowercase before lookup, storage, and comparison.
 - Servers SHOULD reject hashes longer than 255 ASCII characters (also **400**).
-- The server MAY delete any item at any moment for any reason
+- The server MAY delete or evict any cached item at any moment for any reason and MAY use independent eviction policies to balance cache hit rate against resource usage
 - The process of deletion and addition of a cache item MUST be atomic
 - A source HTTP response is usable for cache fill only when its final status code is **200** and it includes a `Content-Length` header giving the content size. Servers MUST NOT stream a source response with any other status, or without `Content-Length` (for example chunked encoding without a known length), to the client. The server MUST treat those cases as a failed source (the same class as other source failures). Before response streaming has begun, the server MAY try alternative sources. If no source succeeds, the server SHOULD respond with **502**.
 - On a successful response to the client (local cache hit, empty-file digest short-circuit, or completed cache fill), the server status code MUST be **200**.
@@ -60,7 +60,6 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 - The server MUST NOT complete addition of a cache item for a fetch that fails hash or size verification. A durable cache entry MUST be fully verified content only; incomplete or failed write state is not a successful addition.
 - The client MUST only accept the file if the connection ended gracefully, anything that resembles a failure MUST be considered as a rejection
 - Daisy-chained servers SHOULD send the list of URLs via `X-Source-Urls` to their upstreams so the upstream can fall back to a source download.
-- Servers MAY evict any data at any time and have their own independent eviction policies to balance cache hit rate against resource usage
 - When saving data on disk, the data directory SHOULD follow `/:algo/:shard/:hash` where shard is the first n hexadecimal characters of the hash (n defaults to 2).
 - Hashing algorithm names MUST be normalized by converting to lowercase and discarding every character that does not match `[a-z0-9]`. Examples: `SHA-256` → `sha256`, `sha1`, `sha512`
 - Clients SHOULD prefer the sha256 algorithm if available

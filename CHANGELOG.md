@@ -7,6 +7,7 @@ normative text changes that implementers may care about.
 
 ### Clarifications
 
+- Merge two Design bullets that both allowed anytime cache eviction into one rule (delete/evict for any reason, independent policies). No intentional wire/header/env change.
 - Define BCP 14 requirement keywords and use **MAY** for optional behavior (was non-standard **CAN**).
 - Prose clarity in `SPEC.md` (grammar, phrasing, Challenges aligned with protocol-only repo scope). No intentional wire/header/env change.
 - README implementations table includes the Java SDK (`fetchurl/sdk-java`).

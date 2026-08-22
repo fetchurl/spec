@@ -7,6 +7,7 @@ normative text changes that implementers may care about.
 
 ### Clarifications
 
+- Merge the two Design sentences that both allowed trying alternative sources before streaming into the existing retry-policy bullet. No intentional wire/header/env change.
 - Merge two Design bullets that both allowed anytime cache eviction into one rule (delete/evict for any reason, independent policies). No intentional wire/header/env change.
 - Define BCP 14 requirement keywords and use **MAY** for optional behavior (was non-standard **CAN**).
 - Prose clarity in `SPEC.md` (grammar, phrasing, Challenges aligned with protocol-only repo scope). No intentional wire/header/env change.

@@ -55,8 +55,7 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 - A source HTTP response is usable for cache fill only when its final status code is **200** and it includes a `Content-Length` header giving the content size. Servers MUST NOT stream a source response with any other status, or without `Content-Length` (for example chunked encoding without a known length), to the client. The server MUST treat those cases as a failed source (the same class as other source failures). If no source succeeds, the server SHOULD respond with **502**.
 - On a successful response to the client (local cache hit, empty-file digest short-circuit, or completed cache fill), the server status code MUST be **200**.
 - The server MAY start serving the data while it's checking for the hash to optimize time to first byte
-- If the hash doesn't match at the end of the stream the server MUST abruptly close the connection
-- If the number of bytes transferred from the source does not equal the source response's `Content-Length`, the server MUST abruptly close the connection (same class of failure as a hash mismatch)
+- If the hash doesn't match at the end of the stream, or the number of bytes transferred from the source does not equal the source response's `Content-Length`, the server MUST abruptly close the connection
 - The server MUST NOT complete addition of a cache item for a fetch that fails hash or size verification. A durable cache entry MUST be fully verified content only; incomplete or failed write state is not a successful addition.
 - The client MUST only accept the file if the connection ended gracefully, anything that resembles a failure MUST be considered as a rejection
 - Daisy-chained servers SHOULD send the list of URLs via `X-Source-Urls` to their upstreams so the upstream can fall back to a source download.

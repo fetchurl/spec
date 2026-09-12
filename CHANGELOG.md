@@ -7,6 +7,7 @@ normative text changes that implementers may care about.
 
 ### Clarifications
 
+- Merge the two Design bullets that both required **400** on an invalid hash path (not hex / wrong length, and longer than 255 characters) into one rule. No intentional wire/header/env change.
 - Merge the two Design bullets that both required an abrupt close on mid-stream integrity failure (hash mismatch and `Content-Length` mismatch) into one rule. No intentional wire/header/env change.
 - Merge the two Design sentences that both allowed trying alternative sources before streaming into the existing retry-policy bullet. No intentional wire/header/env change.
 - Merge two Design bullets that both allowed anytime cache eviction into one rule (delete/evict for any reason, independent policies). No intentional wire/header/env change.

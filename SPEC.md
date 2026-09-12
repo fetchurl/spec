@@ -48,8 +48,7 @@ X-Source-Urls: "https://cdn1.com/file.tar.gz", "https://backup.org/archive.tgz"
 - Clients MUST know the hash and source URLs before connecting to a server
 - Clients MUST check the hash of the files being downloaded on the server and assume that the Server is untrusted, no matter the provider or if it uses TLS
 - Hashes MUST be represented as lowercase hexadecimal of the full digest for the algorithm. Expected path-segment lengths for algorithms in scope: `sha1` = 40, `sha256` = 64, `sha512` = 128 characters.
-- Servers SHOULD reject a request with **400** when the hash path segment is not hexadecimal or is not the expected length for the (normalized) algorithm. Servers MAY accept uppercase hex digits by normalizing them to lowercase before lookup, storage, and comparison.
-- Servers SHOULD reject hashes longer than 255 ASCII characters (also **400**).
+- Servers SHOULD reject a request with **400** when the hash path segment is not hexadecimal, is not the expected length for the (normalized) algorithm, or is longer than 255 ASCII characters. Servers MAY accept uppercase hex digits by normalizing them to lowercase before lookup, storage, and comparison.
 - The server MAY delete or evict any cached item at any moment for any reason and MAY use independent eviction policies to balance cache hit rate against resource usage
 - The process of deletion and addition of a cache item MUST be atomic
 - A source HTTP response is usable for cache fill only when its final status code is **200** and it includes a `Content-Length` header giving the content size. Servers MUST NOT stream a source response with any other status, or without `Content-Length` (for example chunked encoding without a known length), to the client. The server MUST treat those cases as a failed source (the same class as other source failures). If no source succeeds, the server SHOULD respond with **502**.
